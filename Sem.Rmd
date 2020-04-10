@@ -1,0 +1,83 @@
+---
+title: "Sem"
+author: "Max Anisimov"
+date: "11/13/2017"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(broom)
+library(lmtest)
+library(sandwich)
+library(rio)
+library(pander)
+```
+
+```{r}
+pander(head(diamonds))
+```
+
+
+```{r}
+qplot(data=diamonds, x=log(carat), y=log(price))
+```
+
+```{r}
+model_ur <- lm(data=diamonds, log(price) ~ log(carat) + clarity + depth + table + x + y + z)
+model_r <- lm(data=diamonds, log(price) ~ log(carat) + depth + table + x + y + z)
+```
+
+
+Отчеты по каждой модели
+```{r}
+summary(model_ur)
+
+tidy(model_ur)
+
+glance(model_ur)
+```
+
+```{r}
+summary(model_r)
+
+tidy(model_r)
+
+glance(model_r)
+```
+```
+```{r}
+glance(model_ur) %>% pa
+```
+
+
+Обычная оценка ковариационной матрицы (состоятельно оценивает истинную ковариационную матрицу при гомоскедастичности)
+```{r}
+vcov(model_r)
+```
+
+Устойчивая к гетероскедастичости оценка ковариационной матрицы
+```{r}
+vcovHC(model_r)
+```
+
+Два t-теста
+
+Нескорректированный на гетероскедастичность
+```{r}
+coeftest(model_r)
+```
+
+Скорректированный на гетероскедастичность
+```{r}
+coeftest(model_r, vcov. = vcovHC)
+```
+
+Два теста Вальда
+```{r}
+waldtest(model_r, model_ur)
+
+waldtest(model_r, model_ur, vcov = vcovHC)
+```
+
